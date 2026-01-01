@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네스토리움 - 검증된 스타트업 전문가 찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e293b', // Slate 800
+                        secondary: '#3b82f6', // Bright Blue
+                        youtube: '#ff0000', // YouTube Red
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .expert-card:hover { transform: translateY(-5px); }
+        .youtube-play {
+            transition: all 0.3s ease;
+        }
+        .expert-card:hover .youtube-play {
+            transform: scale(1.1);
+            background-color: #ff0000;
+            border-color: #ff0000;
+        }
+        /* 숏폼 비율 (9:16) */
+        .aspect-shorts {
+            aspect-ratio: 9 / 16;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 bg-slate-50 antialiased">
+
+    <!-- Navigation (메인과 동일) -->
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- 로고 클릭 시 홈으로 이동 (수정됨: 링크 대신 알림) -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="alert('스타트업 메인 플랫폼 사이트 주소가 연결되어야 합니다.')">
+                    <i class="fa-solid fa-rocket text-3xl text-secondary"></i>
+                    <span class="font-black text-2xl tracking-tighter text-primary">NESTORIUM</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <!-- 홈으로 버튼 (수정됨: 링크 대신 알림) -->
+                    <a href="#" onclick="alert('스타트업 메인 플랫폼 사이트 주소가 연결되어야 합니다.'); return false;" class="text-slate-600 hover:text-secondary font-medium transition">홈으로</a>
+                    <a href="#" class="text-secondary font-bold transition border-b-2 border-secondary">전문가 찾기</a>
+                    <a href="#seminar" class="text-slate-600 hover:text-secondary font-medium transition">세미나 일정</a>
+                    <a href="#shorts" class="text-slate-600 hover:text-secondary font-medium transition">전문가 숏폼</a>
+                </div>
+                <div class="hidden md:flex">
+                    <a href="https://www.youtube.com/@nestorium" target="_blank" class="flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-full font-bold hover:bg-red-700 transition shadow-lg">
+                        <i class="fa-brands fa-youtube"></i> 유튜브 구독
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="bg-primary pt-32 pb-20 text-white text-center px-4">
+        <h1 class="text-3xl md:text-5xl font-black mb-4">
+            검증된 <span class="text-secondary">전문가 파트너</span>를 만나보세요
+        </h1>
+        <p class="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
+            네스토리움이 보증하는 각 분야 최고의 전문가들입니다.<br>
+            영상으로 먼저 만나보고, 신뢰가 간다면 상담을 신청하세요.
+        </p>
+        
+        <!-- Search/Filter -->
+        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20">
+            <i class="fa-solid fa-magnifying-glass text-slate-400 ml-4"></i>
+            <input type="text" placeholder="어떤 전문가를 찾으시나요? (예: 법인설립, 스톡옵션, 특허)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-2 focus:outline-none focus:ring-0">
+            <button class="bg-secondary text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 transition">검색</button>
+        </div>
+    </header>
+
+    <!-- Category Filters -->
+    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm overflow-x-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-2 py-4 whitespace-nowrap">
+                <button class="px-5 py-2 rounded-full bg-primary text-white font-bold shadow-md">전체보기</button>
+                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">세무/회계</button>
+                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">법무/변호</button>
+                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">특허/IP</button>
+                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">인사/노무</button>
+                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">정부지원</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Expert Card 1 (세무) -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+                <div class="relative">
+                    <!-- Youtube Thumbnail Placeholder -->
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="세무사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded mb-1">세무/회계</span>
+                            <h3 class="text-xl font-bold text-primary">김세무 세무사</h3>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=Kim+Tax&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                        "스타트업 초기 세팅 전문. 법인 전환 시기부터 R&D 세액공제까지, 돈 버는 세무를 알려드립니다."
+                    </p>
+                    <div class="flex gap-2 mb-6">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#법인설립</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#절세전략</span>
+                    </div>
+                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
+                        1:1 상담 신청하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expert Card 2 (법무) -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="변호사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded mb-1">법무/변호</span>
+                            <h3 class="text-xl font-bold text-primary">이변호 변호사</h3>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=Lee+Law&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                        "투자 계약서 도장 찍기 전에 저를 만나세요. 나중에 후회하지 않는 안전한 계약을 도와드립니다."
+                    </p>
+                    <div class="flex gap-2 mb-6">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#투자계약</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#주주간계약</span>
+                    </div>
+                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
+                        1:1 상담 신청하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expert Card 3 (특허) -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="변리사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-1">특허/IP</span>
+                            <h3 class="text-xl font-bold text-primary">박특허 변리사</h3>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=Park+IP&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                        "당신의 아이디어를 자산으로 만듭니다. 기술 특허부터 상표권 방어까지 원스톱 솔루션."
+                    </p>
+                    <div class="flex gap-2 mb-6">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#기술특허</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#상표권</span>
+                    </div>
+                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
+                        1:1 상담 신청하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Expert Card 4 (노무) -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="노무사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded mb-1">인사/노무</span>
+                            <h3 class="text-xl font-bold text-primary">최노무 노무사</h3>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name=Choi+HR&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                        "지원금 놓치지 마세요. 채용부터 급여 설계까지 스타트업에 최적화된 HR을 세팅해 드립니다."
+                    </p>
+                    <div class="flex gap-2 mb-6">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#고용지원금</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#근로계약</span>
+                    </div>
+                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
+                        1:1 상담 신청하기
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 추가 더미 카드 (스크롤 느낌용) -->
+            <div class="bg-slate-100 rounded-2xl flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-300">
+                <div class="text-center text-slate-500">
+                    <i class="fa-solid fa-plus text-4xl mb-4 opacity-50"></i>
+                    <p class="font-bold">더 많은 전문가가<br>함께하고 있습니다.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Seminar Schedule Section (Added) -->
+    <section id="seminar" class="py-24 bg-white border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-secondary font-bold tracking-widest uppercase">Weekly Seminar</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-primary mt-2 mb-4">이번 달 오픈 세미나</h2>
+                <p class="text-slate-600">강남 센터에서 열리는 실전 세미나에 참여하세요. 전문가와 직접 상담할 수 있습니다.</p>
+            </div>
+
+            <div class="space-y-6 max-w-4xl mx-auto">
+                <!-- Seminar Item 1 -->
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-secondary text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
+                        <span class="text-sm font-bold opacity-80">1월</span>
+                        <span class="text-3xl font-black">17</span>
+                        <span class="text-sm font-bold">SAT</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-bold">오프라인</span>
+                            <span class="text-secondary text-sm font-bold">14:00 - 17:00</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-2">2026년 정부지원사업 합격 전략 & 사업계획서 작성법</h3>
+                        <p class="text-slate-500 text-sm">강사: 남기태 대표 (네스토리움)</p>
+                    </div>
+                    <div class="p-6 flex items-center justify-center border-t md:border-t-0 md:border-l border-slate-100 bg-slate-50">
+                        <a href="#" onclick="alert('세미나 신청 페이지로 이동합니다.')" class="text-secondary font-bold hover:text-blue-700">신청하기</a>
+                    </div>
+                </div>
+
+                <!-- Seminar Item 2 -->
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-slate-800 text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
+                        <span class="text-sm font-bold opacity-80">1월</span>
+                        <span class="text-3xl font-black">24</span>
+                        <span class="text-sm font-bold">SAT</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-bold">오프라인</span>
+                            <span class="text-secondary text-sm font-bold">14:00 - 16:00</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-2">스타트업이 꼭 알아야 할 '돈 버는 세무' 특강</h3>
+                        <p class="text-slate-500 text-sm">강사: 파트너 세무사</p>
+                    </div>
+                    <div class="p-6 flex items-center justify-center border-t md:border-t-0 md:border-l border-slate-100 bg-slate-50">
+                        <a href="#" onclick="alert('세미나 신청 페이지로 이동합니다.')" class="text-secondary font-bold hover:text-blue-700">신청하기</a>
+                    </div>
+                </div>
+                
+                <!-- Seminar Item 3 -->
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                    <div class="bg-slate-800 text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
+                        <span class="text-sm font-bold opacity-80">1월</span>
+                        <span class="text-3xl font-black">31</span>
+                        <span class="text-sm font-bold">SAT</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-bold">오프라인</span>
+                            <span class="text-secondary text-sm font-bold">14:00 - 16:00</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-2">동업계약서 작성 실습 & 초기 투자 법률 가이드</h3>
+                        <p class="text-slate-500 text-sm">강사: 파트너 변호사</p>
+                    </div>
+                    <div class="p-6 flex items-center justify-center border-t md:border-t-0 md:border-l border-slate-100 bg-slate-50">
+                        <a href="#" onclick="alert('세미나 신청 페이지로 이동합니다.')" class="text-secondary font-bold hover:text-blue-700">신청하기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- YouTube Shorts Gallery -->
+    <section id="shorts" class="bg-primary py-24 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <span class="text-secondary font-bold tracking-widest uppercase flex items-center gap-2">
+                        <i class="fa-brands fa-youtube text-red-500"></i> NESTORIUM SHORTS
+                    </span>
+                    <h2 class="text-3xl font-bold mt-2">1분 만에 배우는 스타트업 지식</h2>
+                </div>
+                <a href="https://www.youtube.com/@nestorium" target="_blank" class="text-slate-300 hover:text-white transition">채널 바로가기 <i class="fa-solid fa-arrow-right ml-1"></i></a>
+            </div>
+
+            <!-- 가로 스크롤 컨테이너 -->
+            <div class="flex gap-6 overflow-x-auto pb-8 snap-x">
+                <!-- Short 1 -->
+                <div class="flex-none w-64 snap-center cursor-pointer group">
+                    <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
+                            <p class="font-bold text-sm leading-snug">법인카드 밥값은 되는데 커피는 안 된다고? ☕️🚫</p>
+                            <p class="text-xs text-slate-400 mt-1">김세무 세무사</p>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Short 2 -->
+                <div class="flex-none w-64 snap-center cursor-pointer group">
+                    <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
+                        <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
+                            <p class="font-bold text-sm leading-snug">동업 계약서에 '이 말' 없으면 나중에 무조건 싸웁니다 🔥</p>
+                            <p class="text-xs text-slate-400 mt-1">이변호 변호사</p>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Short 3 -->
+                <div class="flex-none w-64 snap-center cursor-pointer group">
+                    <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
+                            <p class="font-bold text-sm leading-snug">직원 1명 채용할 때마다 1,000만원 받는 법 💰</p>
+                            <p class="text-xs text-slate-400 mt-1">최노무 노무사</p>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Short 4 -->
+                <div class="flex-none w-64 snap-center cursor-pointer group">
+                    <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
+                        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
+                            <p class="font-bold text-sm leading-snug">특허 하나로 기업가치 10억 올리는 비밀 🤫</p>
+                            <p class="text-xs text-slate-400 mt-1">박특허 변리사</p>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (공통) -->
+    <footer class="bg-slate-900 text-slate-500 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-rocket text-xl text-slate-400"></i>
+                        <span class="font-bold text-lg text-white">NESTORIUM</span>
+                    </div>
+                    <p class="text-sm">스타트업의 시작과 성장을 돕는 엑셀러레이터</p>
+                </div>
+                <div class="text-sm text-center md:text-right">
+                    <p class="mb-1"><i class="fa-solid fa-location-dot mr-1"></i> 서울특별시 강남구 역삼동</p>
+                    <p><i class="fa-solid fa-envelope mr-1"></i> kwwhale1204@gmail.com | 010-4747-9647</p>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-xs border-t border-slate-800 pt-8">
+                &copy; 2025 NESTORIUM Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
