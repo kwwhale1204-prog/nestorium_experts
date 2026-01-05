@@ -37,23 +37,27 @@
         .aspect-shorts {
             aspect-ratio: 9 / 16;
         }
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .column-card:hover h3 { color: #3b82f6; }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
     </style>
 </head>
-<body class="font-sans text-slate-800 bg-slate-50 antialiased">
+<body class="font-sans text-slate-800 bg-slate-50 antialiased relative">
 
-    <!-- Navigation (메인과 동일) -->
+    <!-- Navigation -->
     <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                <!-- 로고 클릭 시 홈으로 이동 (수정됨: 링크 대신 알림) -->
-                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="alert('스타트업 메인 플랫폼 사이트 주소가 연결되어야 합니다.')">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
                     <i class="fa-solid fa-rocket text-3xl text-secondary"></i>
                     <span class="font-black text-2xl tracking-tighter text-primary">NESTORIUM</span>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <!-- 홈으로 버튼 (수정됨: 링크 대신 알림) -->
-                    <a href="#" onclick="alert('스타트업 메인 플랫폼 사이트 주소가 연결되어야 합니다.'); return false;" class="text-slate-600 hover:text-secondary font-medium transition">홈으로</a>
+                    <a href="#" onclick="window.location.reload(); return false;" class="text-slate-600 hover:text-secondary font-medium transition">홈으로</a>
                     <a href="#" class="text-secondary font-bold transition border-b-2 border-secondary">전문가 찾기</a>
+                    <a href="#columns" class="text-slate-600 hover:text-secondary font-medium transition">전문가 칼럼</a>
                     <a href="#seminar" class="text-slate-600 hover:text-secondary font-medium transition">세미나 일정</a>
                     <a href="#shorts" class="text-slate-600 hover:text-secondary font-medium transition">전문가 숏폼</a>
                 </div>
@@ -75,189 +79,482 @@
             네스토리움이 보증하는 각 분야 최고의 전문가들입니다.<br>
             영상으로 먼저 만나보고, 신뢰가 간다면 상담을 신청하세요.
         </p>
-        
-        <!-- Search/Filter -->
-        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20">
+        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20 relative">
             <i class="fa-solid fa-magnifying-glass text-slate-400 ml-4"></i>
-            <input type="text" placeholder="어떤 전문가를 찾으시나요? (예: 법인설립, 스톡옵션, 특허)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-2 focus:outline-none focus:ring-0">
-            <button class="bg-secondary text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 transition">검색</button>
+            <input type="text" id="searchInput" onkeyup="if(event.key === 'Enter') searchExperts()" placeholder="어떤 전문가를 찾으시나요? (예: 정종구 변호사, 이종호 세무사)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-2 focus:outline-none focus:ring-0">
+            <button onclick="searchExperts()" class="bg-secondary text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 transition">검색</button>
         </div>
+        <p id="search-result-msg" class="text-sm text-slate-400 mt-2 hidden"></p>
     </header>
 
     <!-- Category Filters -->
-    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm overflow-x-auto">
+    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm overflow-x-auto no-scrollbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex space-x-2 py-4 whitespace-nowrap">
-                <button class="px-5 py-2 rounded-full bg-primary text-white font-bold shadow-md">전체보기</button>
-                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">세무/회계</button>
-                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">법무/변호</button>
-                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">특허/IP</button>
-                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">인사/노무</button>
-                <button class="px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition">정부지원</button>
+            <div class="flex space-x-2 py-4 whitespace-nowrap" id="category-buttons">
+                <button onclick="filterCategory('all')" class="category-btn px-5 py-2 rounded-full bg-primary text-white font-bold shadow-md hover:bg-slate-700 transition" data-category="all">전체보기</button>
+                <button onclick="filterCategory('법무/변호')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="법무/변호">법무/변호</button>
+                <button onclick="filterCategory('세무/회계')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="세무/회계">세무/회계</button>
+                <button onclick="filterCategory('특허/IP')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="특허/IP">특허/IP</button>
+                <button onclick="filterCategory('인사/노무')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="인사/노무">인사/노무</button>
+                <button onclick="filterCategory('정부지원/인허가')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="정부지원/인허가">정부지원/인허가</button>
+                <button onclick="filterCategory('창업/멘토')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="창업/멘토">창업/멘토</button>
+                <button onclick="filterCategory('운영/기획')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="운영/기획">운영/기획</button>
+                <button onclick="filterCategory('브랜딩/마케팅')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="브랜딩/마케팅">브랜딩/마케팅</button>
+                <button onclick="filterCategory('AI')" class="category-btn px-5 py-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:border-secondary hover:text-secondary font-medium transition" data-category="AI">AI</button>
             </div>
         </div>
     </div>
 
     <!-- Main Content Grid -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="expert-grid">
             
-            <!-- Expert Card 1 (세무) -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+            <!-- Expert Cards -->
+            <!-- 정종구 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="법무/변호">
                 <div class="relative">
-                    <!-- Youtube Thumbnail Placeholder -->
                     <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
-                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="세무사" class="w-full h-full object-cover opacity-60">
+                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="정종구 변호사" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
                                 <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                             </div>
-                        </div>
-                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
                         </div>
                     </div>
                 </div>
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded mb-1">세무/회계</span>
-                            <h3 class="text-xl font-bold text-primary">김세무 세무사</h3>
+                            <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">법무/변호</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">정종구 변호사</h3>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Kim+Tax&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
                     </div>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
-                        "스타트업 초기 세팅 전문. 법인 전환 시기부터 R&D 세액공제까지, 돈 버는 세무를 알려드립니다."
-                    </p>
-                    <div class="flex gap-2 mb-6">
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"스타트업 법률 리스크 관리부터 투자 계약 자문까지, 빈틈없는 법률 파트너가 되어드립니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#투자자문</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#법률분쟁</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 홍세준 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="법무/변호">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="홍세준 법무사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">법무/등기</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">홍세준 법무사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"법인 설립부터 임원 변경, 증자 등기까지. 복잡한 등기 절차를 신속하고 정확하게 처리합니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
                         <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#법인설립</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#상업등기</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 이종호 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="세무/회계">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="이종호 세무사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">세무/회계</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">이종호 세무사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"스타트업 전문 세무 기장과 절세 컨설팅. 대표님의 소중한 자산을 지켜드립니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#기장대리</span>
                         <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#절세전략</span>
                     </div>
-                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
-                        1:1 상담 신청하기
-                    </button>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
                 </div>
             </div>
 
-            <!-- Expert Card 2 (법무) -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+            <!-- 고혜진 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="세무/회계">
                 <div class="relative">
                     <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
-                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="변호사" class="w-full h-full object-cover opacity-60">
+                        <img src="https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="고혜진 회계사" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
                                 <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                             </div>
-                        </div>
-                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
                         </div>
                     </div>
                 </div>
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded mb-1">법무/변호</span>
-                            <h3 class="text-xl font-bold text-primary">이변호 변호사</h3>
+                            <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">회계/감사</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">고혜진 회계사</h3>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Lee+Law&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
                     </div>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
-                        "투자 계약서 도장 찍기 전에 저를 만나세요. 나중에 후회하지 않는 안전한 계약을 도와드립니다."
-                    </p>
-                    <div class="flex gap-2 mb-6">
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#투자계약</span>
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#주주간계약</span>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"투명한 회계 관리로 투자자에게 신뢰받는 기업을 만듭니다. 외부 감사부터 내부 통제 시스템 구축까지."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#회계감사</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#재무관리</span>
                     </div>
-                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
-                        1:1 상담 신청하기
-                    </button>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
                 </div>
             </div>
 
-            <!-- Expert Card 3 (특허) -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+            <!-- 김수빈 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="정부지원/인허가">
                 <div class="relative">
                     <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
-                        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="변리사" class="w-full h-full object-cover opacity-60">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="김수빈 행정사" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
                                 <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                             </div>
-                        </div>
-                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
                         </div>
                     </div>
                 </div>
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-1">특허/IP</span>
-                            <h3 class="text-xl font-bold text-primary">박특허 변리사</h3>
+                            <span class="inline-block bg-teal-100 text-teal-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">정부지원/인허가</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">김수빈 행정사</h3>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Park+IP&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
                     </div>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
-                        "당신의 아이디어를 자산으로 만듭니다. 기술 특허부터 상표권 방어까지 원스톱 솔루션."
-                    </p>
-                    <div class="flex gap-2 mb-6">
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"복잡한 인허가 업무부터 각종 인증, 정부지원사업 서류 대행까지 확실하게 도와드립니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#기업인증</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#인허가</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 최승희 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="인사/노무">
+                <a href="https://www.youtube.com/channel/UCsSARXgW03fODuOGOrJdMmA" target="_blank" class="block relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="최승희 노무사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
+                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
+                        </div>
+                    </div>
+                </a>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">인사/노무</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">최승희 노무사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"안전한 근로계약부터 급여 아웃소싱, 인사 제도 설계까지. 노무 리스크를 0으로 만듭니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#급여관리</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#규정정비</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 이준현 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="특허/IP">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="이준현 변리사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">특허/IP</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">이준현 변리사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"기술 특허 출원과 지식재산권 보호, 기술가치평가 전문 변리사입니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
                         <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#기술특허</span>
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#상표권</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#IP포트폴리오</span>
                     </div>
-                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
-                        1:1 상담 신청하기
-                    </button>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
                 </div>
             </div>
 
-            <!-- Expert Card 4 (노무) -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group">
+             <!-- 조민지 -->
+             <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="특허/IP">
                 <div class="relative">
                     <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
-                        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="노무사" class="w-full h-full object-cover opacity-60">
+                        <img src="https://images.unsplash.com/photo-1590650516494-0c8e4a4dd67e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="조민지 변리사" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
                                 <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
                             </div>
-                        </div>
-                        <div class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                            <i class="fa-brands fa-youtube mr-1"></i> 인터뷰 보기
                         </div>
                     </div>
                 </div>
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded mb-1">인사/노무</span>
-                            <h3 class="text-xl font-bold text-primary">최노무 노무사</h3>
+                            <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">특허/IP</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">조민지 변리사</h3>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name=Choi+HR&background=random" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" alt="프로필">
                     </div>
-                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">
-                        "지원금 놓치지 마세요. 채용부터 급여 설계까지 스타트업에 최적화된 HR을 세팅해 드립니다."
-                    </p>
-                    <div class="flex gap-2 mb-6">
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#고용지원금</span>
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#근로계약</span>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"브랜드 가치를 높이는 상표권 전략과 디자인권 보호를 책임집니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#상표디자인</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#브랜드보호</span>
                     </div>
-                    <button onclick="alert('상담 신청 폼으로 이동합니다.')" class="w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition">
-                        1:1 상담 신청하기
-                    </button>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
                 </div>
             </div>
+
+            <!-- 박예진 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="재무/교육">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1544717297-fa95b6ee9643?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="박예진 재무교육" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">재무/교육</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">박예진 재무이사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"스타트업이 꼭 알아야 할 재무제표 분석부터 자금 흐름 관리 교육까지."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#재무교육</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#자금관리</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+             <!-- 남기태 -->
+             <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="창업/멘토">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="남기태 대표" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">창업/멘토</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">남기태 대표</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"아이디어 단계에서 스케일업까지, 실전 창업 경험을 바탕으로 한 멘토링."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#BM설계</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#투자유치</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 강민서 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="운영/기획">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="강민서 운영이사" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-rose-100 text-rose-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">운영/기획</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">강민서 운영이사</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"스타트업의 체계적인 조직 운영과 효율적인 프로세스 구축을 지원합니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#조직문화</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#프로세스</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- 장영글 -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 expert-card group transition-all duration-300" data-category="브랜딩/마케팅">
+                <div class="relative">
+                    <div class="h-56 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition">
+                        <img src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="장영글 대표" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white youtube-play cursor-pointer">
+                                <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-2 py-1 rounded mb-1 category-label">브랜딩/마케팅</span>
+                            <h3 class="text-xl font-bold text-primary expert-name">장영글 대표</h3>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 line-clamp-2">"고객의 마음을 움직이는 브랜드 스토리텔링과 실전 마케팅 전략을 컨설팅합니다."</p>
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#브랜드전략</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">#마케팅</span>
+                    </div>
+                    <a href="https://docs.google.com/forms/d/1w2BihEHAxbIaA40BOhI_zvShdo-7SgM5FALfyw-XwZo/viewform" target="_blank" class="block w-full border border-secondary text-secondary font-bold py-3 rounded-xl hover:bg-secondary hover:text-white transition duration-300 text-center">상담 신청하기</a>
+                </div>
+            </div>
+
+            <!-- AI 카테고리 -->
+            <a href="https://open.kakao.com/o/s8xsxaxd" target="_blank" class="expert-card group block" data-category="AI">
+                <div class="bg-slate-50 rounded-2xl flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-300 hover:border-secondary hover:bg-blue-50 transition cursor-pointer">
+                    <div class="text-center text-slate-500 group-hover:text-secondary">
+                        <i class="fa-solid fa-robot text-4xl mb-4 opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="font-bold mb-2">AI 전문가 모집중</p>
+                        <p class="text-sm">네스토리움과 함께할<br>AI 기술 전문가를 찾습니다.</p>
+                        <p class="text-xs mt-3 font-bold text-secondary opacity-0 group-hover:opacity-100 transition">지원하기 <i class="fa-solid fa-arrow-right"></i></p>
+                    </div>
+                </div>
+            </a>
             
-            <!-- 추가 더미 카드 (스크롤 느낌용) -->
-            <div class="bg-slate-100 rounded-2xl flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-300">
-                <div class="text-center text-slate-500">
-                    <i class="fa-solid fa-plus text-4xl mb-4 opacity-50"></i>
-                    <p class="font-bold">더 많은 전문가가<br>함께하고 있습니다.</p>
+            <!-- 추가 모집 -->
+            <a href="https://open.kakao.com/o/s8xsxaxd" target="_blank" class="expert-card group block">
+                <div class="bg-slate-100 rounded-2xl flex items-center justify-center min-h-[300px] border-2 border-dashed border-slate-300 hover:border-secondary hover:bg-slate-50 transition cursor-pointer">
+                    <div class="text-center text-slate-500 group-hover:text-secondary">
+                        <i class="fa-solid fa-user-plus text-4xl mb-4 opacity-50 group-hover:opacity-100 transition"></i>
+                        <p class="font-bold mb-2">전문가 추가 모집중</p>
+                        <p class="text-sm">네스토리움과 함께할<br>전문가를 모십니다.</p>
+                        <p class="text-xs mt-3 font-bold text-secondary opacity-0 group-hover:opacity-100 transition">문의하기 <i class="fa-solid fa-arrow-right"></i></p>
+                    </div>
                 </div>
-            </div>
+            </a>
 
         </div>
     </section>
 
+    <!-- Expert Columns Section -->
+    <section id="columns" class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <span class="text-secondary font-bold tracking-widest uppercase">Expert Columns</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary mt-2">전문가 인사이트</h2>
+                    <p class="text-slate-600 mt-2">스타트업 성장에 필요한 실무 지식과 노하우를 칼럼으로 만나보세요.</p>
+                </div>
+                <button onclick="openColumnBoard()" class="hidden md:inline-block text-slate-500 hover:text-secondary font-bold transition">전체 칼럼 보기 <i class="fa-solid fa-arrow-right ml-1"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Main Columns (Using Index) -->
+                <!-- 0: 정종구 -->
+                <article onclick="openColumn(0)" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition column-card cursor-pointer group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="칼럼 썸네일" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">법무/계약</span>
+                            <span class="text-xs text-slate-400">2025.01.05</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-primary mb-2 line-clamp-2 leading-snug transition">초기 스타트업이 투자 계약서에서 반드시 확인해야 할 3가지 독소조항</h3>
+                        <p class="text-slate-500 text-sm mb-4 line-clamp-2">투자를 받는다는 기쁨에 덜컥 도장을 찍었다가는 나중에 경영권을 위협받을 수 있습니다. 대표님이 꼭 챙겨야 할...</p>
+                        <div class="flex items-center gap-2 border-t border-slate-100 pt-4">
+                            <img src="https://ui-avatars.com/api/?name=Jung+Law&background=random" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-bold text-slate-700">정종구 변호사</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 1: 이종호 -->
+                <article onclick="openColumn(1)" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition column-card cursor-pointer group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="칼럼 썸네일" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">세무/절세</span>
+                            <span class="text-xs text-slate-400">2025.01.03</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-primary mb-2 line-clamp-2 leading-snug transition">법인 설립 초기, 놓치면 100% 후회하는 R&D 세액공제 가이드</h3>
+                        <p class="text-slate-500 text-sm mb-4 line-clamp-2">연구소 설립만 해도 세금을 줄일 수 있다는 사실, 알고 계셨나요? 벤처기업 인증과 연계한 절세 전략을 공개합니다.</p>
+                        <div class="flex items-center gap-2 border-t border-slate-100 pt-4">
+                            <img src="https://ui-avatars.com/api/?name=Lee+Tax&background=random" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-bold text-slate-700">이종호 세무사</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 2: 강민서 -->
+                <article onclick="openColumn(2)" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition column-card cursor-pointer group">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="칼럼 썸네일" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded">조직/운영</span>
+                            <span class="text-xs text-slate-400">2024.12.28</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-primary mb-2 line-clamp-2 leading-snug transition">10명 이하 스타트업을 위한 OKR 설정 및 성과 관리 방법론</h3>
+                        <p class="text-slate-500 text-sm mb-4 line-clamp-2">작은 조직일수록 목표 정렬이 중요합니다. 구글이 쓴다는 OKR, 우리 회사에 맞게 가볍게 도입하는 방법을 알아봅니다.</p>
+                        <div class="flex items-center gap-2 border-t border-slate-100 pt-4">
+                            <img src="https://ui-avatars.com/api/?name=Kang+Ops&background=random" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-bold text-slate-700">강민서 운영이사</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            
+            <div class="mt-8 text-center md:hidden">
+                <button onclick="openColumnBoard()" class="inline-block border border-slate-300 rounded-full px-6 py-2 text-slate-600 font-bold hover:bg-slate-50 transition">전체 칼럼 보기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ... (Seminar & Shorts Sections unchanged) ... -->
     <!-- Seminar Schedule Section (Added) -->
     <section id="seminar" class="py-24 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -269,7 +566,7 @@
 
             <div class="space-y-6 max-w-4xl mx-auto">
                 <!-- Seminar Item 1 -->
-                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition duration-300">
                     <div class="bg-secondary text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
                         <span class="text-sm font-bold opacity-80">1월</span>
                         <span class="text-3xl font-black">17</span>
@@ -289,7 +586,7 @@
                 </div>
 
                 <!-- Seminar Item 2 -->
-                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition duration-300">
                     <div class="bg-slate-800 text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
                         <span class="text-sm font-bold opacity-80">1월</span>
                         <span class="text-3xl font-black">24</span>
@@ -301,7 +598,7 @@
                             <span class="text-secondary text-sm font-bold">14:00 - 16:00</span>
                         </div>
                         <h3 class="text-xl font-bold text-primary mb-2">스타트업이 꼭 알아야 할 '돈 버는 세무' 특강</h3>
-                        <p class="text-slate-500 text-sm">강사: 파트너 세무사</p>
+                        <p class="text-slate-500 text-sm">강사: 이종호 세무사</p>
                     </div>
                     <div class="p-6 flex items-center justify-center border-t md:border-t-0 md:border-l border-slate-100 bg-slate-50">
                         <a href="#" onclick="alert('세미나 신청 페이지로 이동합니다.')" class="text-secondary font-bold hover:text-blue-700">신청하기</a>
@@ -309,7 +606,7 @@
                 </div>
                 
                 <!-- Seminar Item 3 -->
-                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                <div class="flex flex-col md:flex-row border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition duration-300">
                     <div class="bg-slate-800 text-white p-6 flex flex-col justify-center items-center w-full md:w-32">
                         <span class="text-sm font-bold opacity-80">1월</span>
                         <span class="text-3xl font-black">31</span>
@@ -321,7 +618,7 @@
                             <span class="text-secondary text-sm font-bold">14:00 - 16:00</span>
                         </div>
                         <h3 class="text-xl font-bold text-primary mb-2">동업계약서 작성 실습 & 초기 투자 법률 가이드</h3>
-                        <p class="text-slate-500 text-sm">강사: 파트너 변호사</p>
+                        <p class="text-slate-500 text-sm">강사: 정종구 변호사</p>
                     </div>
                     <div class="p-6 flex items-center justify-center border-t md:border-t-0 md:border-l border-slate-100 bg-slate-50">
                         <a href="#" onclick="alert('세미나 신청 페이지로 이동합니다.')" class="text-secondary font-bold hover:text-blue-700">신청하기</a>
@@ -345,7 +642,7 @@
             </div>
 
             <!-- 가로 스크롤 컨테이너 -->
-            <div class="flex gap-6 overflow-x-auto pb-8 snap-x">
+            <div class="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
                 <!-- Short 1 -->
                 <div class="flex-none w-64 snap-center cursor-pointer group">
                     <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
@@ -354,7 +651,7 @@
                         <div class="absolute bottom-4 left-4 right-4">
                             <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
                             <p class="font-bold text-sm leading-snug">법인카드 밥값은 되는데 커피는 안 된다고? ☕️🚫</p>
-                            <p class="text-xs text-slate-400 mt-1">김세무 세무사</p>
+                            <p class="text-xs text-slate-400 mt-1">이종호 세무사</p>
                         </div>
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                             <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
@@ -370,7 +667,7 @@
                         <div class="absolute bottom-4 left-4 right-4">
                             <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
                             <p class="font-bold text-sm leading-snug">동업 계약서에 '이 말' 없으면 나중에 무조건 싸웁니다 🔥</p>
-                            <p class="text-xs text-slate-400 mt-1">이변호 변호사</p>
+                            <p class="text-xs text-slate-400 mt-1">정종구 변호사</p>
                         </div>
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                             <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
@@ -379,14 +676,14 @@
                 </div>
 
                 <!-- Short 3 -->
-                <div class="flex-none w-64 snap-center cursor-pointer group">
+                <div class="flex-none w-64 snap-center cursor-pointer group" onclick="window.open('https://www.youtube.com/channel/UCsSARXgW03fODuOGOrJdMmA', '_blank')">
                     <div class="aspect-shorts bg-gray-800 rounded-xl overflow-hidden relative border border-slate-700">
                         <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                         <div class="absolute bottom-4 left-4 right-4">
                             <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
                             <p class="font-bold text-sm leading-snug">직원 1명 채용할 때마다 1,000만원 받는 법 💰</p>
-                            <p class="text-xs text-slate-400 mt-1">최노무 노무사</p>
+                            <p class="text-xs text-slate-400 mt-1">최승희 노무사</p>
                         </div>
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                             <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
@@ -402,7 +699,7 @@
                         <div class="absolute bottom-4 left-4 right-4">
                             <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold mb-2 inline-block">SHORTS</span>
                             <p class="font-bold text-sm leading-snug">특허 하나로 기업가치 10억 올리는 비밀 🤫</p>
-                            <p class="text-xs text-slate-400 mt-1">박특허 변리사</p>
+                            <p class="text-xs text-slate-400 mt-1">이준현 변리사</p>
                         </div>
                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                             <i class="fa-solid fa-play text-white text-4xl drop-shadow-lg"></i>
@@ -435,5 +732,325 @@
         </div>
     </footer>
 
+    <!-- MODALS -->
+    <!-- 1. Column Detail Modal -->
+    <div id="column-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 modal-backdrop" onclick="closeModal('column-modal')"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all relative">
+                <button onclick="closeModal('column-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 z-10">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+                <div class="p-8">
+                    <div class="mb-6 border-b border-slate-100 pb-6">
+                        <span id="col-modal-date" class="text-sm text-slate-500 block mb-2"></span>
+                        <h2 id="col-modal-title" class="text-2xl md:text-3xl font-bold text-primary mb-4 leading-tight"></h2>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span id="col-modal-author" class="font-bold text-slate-700"></span>
+                        </div>
+                    </div>
+                    <div id="col-modal-content" class="text-slate-600 leading-relaxed text-lg whitespace-pre-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. All Columns Board Modal -->
+    <div id="board-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 modal-backdrop" onclick="closeModal('board-modal')"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all relative">
+                <div class="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-primary">전문가 칼럼 전체보기</h2>
+                    <button onclick="closeModal('board-modal')" class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="board-grid">
+                        <!-- Dynamic content will be inserted here -->
+                        
+                        <!-- Static Content for Board (Using JS indices) -->
+                        <!-- 법무/등기 -->
+                        <article onclick="closeModal('board-modal'); openColumn(0)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">법무/계약</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">초기 스타트업 투자 계약서 독소조항 체크리스트</h3>
+                            <p class="text-sm text-slate-500">정종구 변호사 · 2025.01.05</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(3)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">법무/등기</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">놓치기 쉬운 법인 변경등기 위반 사례 3가지</h3>
+                            <p class="text-sm text-slate-500">홍세준 법무사 · 2024.12.30</p>
+                        </article>
+
+                        <!-- 세무/회계 -->
+                        <article onclick="closeModal('board-modal'); openColumn(1)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">세무/절세</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">놓치면 후회하는 R&D 세액공제 가이드</h3>
+                            <p class="text-sm text-slate-500">이종호 세무사 · 2025.01.03</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(4)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded">회계/감사</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">투자 유치 전 반드시 정리해야 할 재무제표 계정</h3>
+                            <p class="text-sm text-slate-500">고혜진 회계사 · 2024.12.25</p>
+                        </article>
+
+                        <!-- 인사/노무 -->
+                        <article onclick="closeModal('board-modal'); openColumn(5)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded">인사/노무</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">수습기간 해고, 법적으로 문제 없는 절차는?</h3>
+                            <p class="text-sm text-slate-500">최승희 노무사 · 2024.12.15</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(6)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded">인사/노무</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">프리랜서 vs 근로자, 잘못된 계약의 최후</h3>
+                            <p class="text-sm text-slate-500">최승희 노무사 · 2024.12.05</p>
+                        </article>
+
+                        <!-- 특허/IP -->
+                        <article onclick="closeModal('board-modal'); openColumn(7)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">특허/IP</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">특허 출원 전 반드시 알아야 할 선행기술조사</h3>
+                            <p class="text-sm text-slate-500">이준현 변리사 · 2024.12.20</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(8)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">특허/IP</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">법인명 등기만 믿다가 브랜드 뺏기는 이유</h3>
+                            <p class="text-sm text-slate-500">조민지 변리사 · 2024.12.18</p>
+                        </article>
+
+                        <!-- 마케팅/브랜딩 -->
+                        <article onclick="closeModal('board-modal'); openColumn(9)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-pink-600 bg-pink-100 px-2 py-1 rounded">마케팅</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">광고비 0원으로 유저 1,000명 모으는 PR 전략</h3>
+                            <p class="text-sm text-slate-500">장영글 대표 · 2024.12.10</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(10)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-pink-600 bg-pink-100 px-2 py-1 rounded">브랜딩</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">3초 만에 고객을 사로잡는 한 줄, 슬로건의 법칙</h3>
+                            <p class="text-sm text-slate-500">장영글 대표 · 2024.11.20</p>
+                        </article>
+
+                        <!-- 경영/지원 -->
+                        <article onclick="closeModal('board-modal'); openColumn(2)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-rose-600 bg-rose-100 px-2 py-1 rounded">조직/운영</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">10명 이하 스타트업을 위한 OKR 설정법</h3>
+                            <p class="text-sm text-slate-500">강민서 운영이사 · 2024.12.28</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(12)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 py-1 rounded">창업/정부지원</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">정부지원사업 합격하는 사업계획서의 비밀 (PSST)</h3>
+                            <p class="text-sm text-slate-500">남기태 대표 · 2024.12.01</p>
+                        </article>
+                        <article onclick="closeModal('board-modal'); openColumn(13)" class="bg-slate-50 rounded-xl p-6 hover:bg-white hover:shadow-md transition cursor-pointer border border-slate-100">
+                            <span class="text-xs font-bold text-teal-600 bg-teal-100 px-2 py-1 rounded">행정/인증</span>
+                            <h3 class="font-bold text-lg mt-3 mb-2 text-primary">벤처기업 인증, 우리 회사는 어떤 유형이 유리할까?</h3>
+                            <p class="text-sm text-slate-500">김수빈 행정사 · 2024.11.15</p>
+                        </article>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        // Column Data Store (To fix quoting issues and manage full text)
+        const columnData = [
+            {
+                id: 0,
+                category: "법무/계약",
+                title: "초기 스타트업이 투자 계약서에서 반드시 확인해야 할 3가지 독소조항",
+                author: "정종구 변호사",
+                date: "2025.01.05",
+                content: `투자 계약서는 스타트업의 생존을 결정짓는 중요한 문서입니다. 투자 유치의 기쁨에 취해 세부 조항을 놓치면, 나중에 경영권을 잃거나 불공정한 상황에 처할 수 있습니다. 다음 3가지는 반드시 체크하세요.<br><br><strong>1. 완전 합의 조항 (Entire Agreement Clause)</strong><br>이 조항은 계약서에 명시된 내용만이 유효하며, 이전에 오고 간 이메일, 구두 약속, MOU 등은 법적 효력이 없음을 선언합니다. 투자 심사 과정에서 '이 부분은 나중에 봐주겠다'라고 구두로 약속받았더라도, 계약서에 없으면 무용지물입니다. 중요한 약속은 반드시 본계약서에 문구로 포함시켜야 합니다.<br><br><strong>2. 진술 및 보증 (Representations and Warranties)</strong><br>창업자는 회사의 현재 재무 상태, 지식재산권 소유 여부, 소송 진행 상황 등을 투명하게 밝혀야 합니다. 만약 실수로라도 중요한 사실을 누락하거나 사실과 다르게 기재하면, 투자자는 이를 빌미로 투자금을 회수하거나 손해배상을 청구할 수 있습니다. '진술 및 보증' 위반은 투자 계약 해지의 가장 흔한 사유 중 하나입니다.<br><br><strong>3. 동반 매도권 (Drag-along Right)</strong><br>투자자가 자신의 지분을 제3자에게 매각할 때, 대주주(창업자)의 지분도 같은 조건으로 함께 팔라고 요구할 수 있는 권리입니다. 이는 회사의 경영권이 강제로 넘어갈 수 있는 무서운 조항입니다. 따라서 '최소 매각 가격'을 설정하거나, '창업자의 동의'를 전제로 하는 등 방어 장치를 마련해야 합니다.<br><br>이 외에도 청산 우선권(Liquidation Preference)이나 희석 방지(Anti-dilution) 조항 등 복잡한 조건들이 많습니다. 도장 찍기 전, 반드시 스타트업 전문 변호사의 검토를 받으시길 권장합니다.`
+            },
+            {
+                id: 1,
+                category: "세무/절세",
+                title: "법인 설립 초기, 놓치면 100% 후회하는 R&D 세액공제 가이드",
+                author: "이종호 세무사",
+                date: "2025.01.03",
+                content: `초기 스타트업에게 '세금'은 먼 이야기 같지만, 지금 준비하지 않으면 나중에 수천만 원의 손해를 봅니다. 대표적인 것이 바로 '연구인력개발비 세액공제'입니다.<br><br><strong>왜 R&D 세액공제인가?</strong><br>기업부설연구소 또는 연구전담부서를 설립하면, 연구원 인건비의 25%(최대 50%)를 법인세에서 공제받을 수 있습니다. 이는 비용 처리가 아니라 산출된 세금에서 직접 깎아주는 세액공제이므로 혜택이 매우 큽니다. 만약 당장 낼 세금이 없다면 10년 동안 이월 공제도 가능합니다.<br><br><strong>설립 요건은 어렵지 않나요?</strong><br>생각보다 간단합니다. 독립된 공간(파티션 가능)과 자격을 갖춘 연구원(이공계 학사 등)만 있다면 신고만으로 설립이 가능합니다. 초기 스타트업은 대표이사가 연구원을 겸직할 수도 있는 예외 규정이 있어(창업 3년 이내) 접근성이 좋습니다.<br><br><strong>주의할 점</strong><br>가장 중요한 것은 '사후 관리'입니다. 연구소가 있다는 것만으로는 부족합니다. 실제 연구 활동을 했다는 증빙(연구 노트, 개발 일지)이 없으면 나중에 세무조사에서 추징당할 수 있습니다. 또한 연구원은 오직 연구 업무만 수행해야 하므로, 영업이나 마케팅 업무를 겸직하게 해서는 안 됩니다.<br><br>벤처기업 인증과 연계하면 취득세, 재산세 감면 혜택까지 더해지니, 법인 설립 직후 세무 전문가와 상의하여 로드맵을 짜는 것이 현명합니다.`
+            },
+            {
+                id: 2,
+                category: "조직/운영",
+                title: "10명 이하 스타트업을 위한 OKR 설정 및 성과 관리 방법론",
+                author: "강민서 운영이사",
+                date: "2024.12.28",
+                content: `구글이 써서 유명해진 OKR(Objective and Key Results), 우리 같은 작은 팀에도 필요할까요? 정답은 '그렇다'입니다. 오히려 인원이 적을수록 방향 정렬(Alignment)이 중요하기 때문입니다.<br><br><strong>Objective (목표): 가슴 뛰게 설정하라</strong><br>목표는 수치가 아니라 정성적인 문장이어야 합니다. '매출 10억 달성'보다는 '고객이 매일 접속하고 싶은 필수 앱 만들기'가 좋은 Objective입니다. 팀원들에게 영감을 줄 수 있어야 합니다.<br><br><strong>Key Results (핵심 결과): 차갑게 측정하라</strong><br>Objective를 달성했는지 어떻게 알 수 있을까요? 여기서 숫자가 나옵니다. <br>1. 일간 활성 사용자(DAU) 5,000명 달성<br>2. 앱스토어 평점 4.5점 유지<br>3. 재방문율 40% 달성<br>이처럼 측정 가능하고 구체적인 지표를 3가지 정도 설정합니다.<br><br><strong>작은 조직을 위한 팁</strong><br>1. <strong>주기를 짧게 가져가세요:</strong> 대기업처럼 분기 단위로 하기엔 스타트업의 상황이 너무 빨리 변합니다. 월 단위 또는 2주 단위 스프린트 OKR을 추천합니다.<br>2. <strong>도구에 집착하지 마세요:</strong> 거창한 SaaS 툴은 필요 없습니다. 화이트보드나 노션 페이지 하나면 충분합니다. 모두가 매일 볼 수 있는 곳에 적어두세요.<br>3. <strong>CFR이 핵심입니다:</strong> Conversation(대화), Feedback(피드백), Recognition(인정) 없는 OKR은 단순한 압박일 뿐입니다. 매주 금요일, OKR 달성 현황을 공유하고 서로를 격려하는 시간을 반드시 가지세요.<br><br>OKR은 평가 도구가 아니라 성장 도구임을 잊지 마세요.`
+            },
+            {
+                id: 3,
+                category: "법무/등기",
+                title: "놓치기 쉬운 법인 변경등기 위반 사례 3가지",
+                author: "홍세준 법무사",
+                date: "2024.12.30",
+                content: `스타트업 대표님들이 비용을 아끼려고 셀프 등기를 하시다가 가장 많이 놓치는 것이 바로 <strong>중임 등기</strong>입니다.<br><br>이사의 임기는 통상 3년인데, 임기가 만료되면 퇴임하거나 다시 취임(중임)하는 등기를 2주 내에 해야 합니다. 아무 변동 사항이 없다고 가만히 있으면 과태료 대상이 됩니다.<br><br>또한 <strong>본점 이전 등기</strong>도 주의해야 합니다. 같은 관할 내 이전이라도 등기가 필요하며, 특히 과밀억제권역 간 이동 시 세금 문제가 복잡하게 얽힐 수 있습니다. 등기 해태 통지서를 받고 나서야 연락 주시는 경우가 많은데, 미리 챙기셔야 불필요한 지출을 막을 수 있습니다.`
+            },
+            {
+                id: 4,
+                category: "회계/감사",
+                title: "투자 유치 전 반드시 정리해야 할 재무제표 계정",
+                author: "고혜진 회계사",
+                date: "2024.12.25",
+                content: `IR 미팅에서 아무리 멋진 비전을 설명해도, 재무제표가 엉망이면 신뢰를 얻기 힘듭니다. 투자자들이 가장 싫어하는 재무 이슈는 무엇일까요?<br><br><strong>1. 가지급금</strong><br>대표이사가 회사 돈을 임의로 가져다 쓴 항목입니다. 이는 회사의 자금이 사적으로 유용되고 있다는 강력한 신호이므로 투자 전 반드시 정리해야 합니다.<br><br><strong>2. 가수금</strong><br>반대로 대표님 돈을 회사에 넣은 것인데, 이 역시 자금 출처가 불분명하면 문제가 됩니다. 증자로 전환하거나 상환하여 부채 비율을 관리해야 합니다.<br><br><strong>3. 개발비 자산화</strong><br>아직 매출도 없는데 인건비를 모두 '자산'으로 잡아 이익이 난 것처럼 꾸미는 경우입니다. 보수적인 회계 처리가 오히려 신뢰를 줍니다.`
+            },
+            {
+                id: 5,
+                category: "인사/노무",
+                title: "수습기간 해고, 법적으로 문제 없는 절차는?",
+                author: "최승희 노무사",
+                date: "2024.12.15",
+                content: `스타트업에서 가장 빈번하게 발생하는 분쟁이 바로 해고 문제입니다. <br><br><strong>수습 기간 중 해고</strong><br>3개월 미만 근무한 근로자에 대해서는 해고 예고(30일 전 통보) 의무가 적용되지 않아 해고 예고 수당을 줄 필요는 없습니다. 하지만 <strong>'해고의 정당한 사유'</strong>와 <strong>'서면 통지'</strong> 의무는 여전히 존재합니다.<br><br>단순히 "우리랑 안 맞는 것 같아요"라고 구두로 해고하면 부당해고 구제신청의 대상이 됩니다. 수습 평가표 등 객관적인 근거를 남기고, 반드시 해고 사유와 시기를 적은 서면을 교부해야 합니다.`
+            },
+            {
+                id: 6,
+                category: "인사/노무",
+                title: "프리랜서 vs 근로자, 잘못된 계약의 최후",
+                author: "최승희 노무사",
+                date: "2024.12.05",
+                content: `개발자나 디자이너와 프리랜서(용역) 계약을 맺는 경우가 많습니다. 하지만 계약서 제목보다 중요한 것은 <strong>실질적인 근무 형태</strong>입니다.<br><br>1. 출퇴근 시간이 정해져 있는가?<br>2. 업무 지시를 구체적으로 하는가?<br>3. 비품을 회사가 제공하는가?<br><br>위 요건에 해당한다면 노동청은 이를 '근로자'로 판단할 확률이 높습니다. 이 경우 1년 이상 근무 시 퇴직금을 지급해야 하며, 4대 보험 미가입에 따른 과태료까지 물 수 있습니다. 프리랜서 계약은 업무의 완성만을 목적으로 하고, 구체적인 지휘 감독을 하지 않아야 안전합니다.`
+            },
+            {
+                id: 7,
+                category: "특허/IP",
+                title: "특허 출원 전 반드시 알아야 할 선행기술조사",
+                author: "이준현 변리사",
+                date: "2024.12.20",
+                content: `아이디어가 떠올랐을 때 가장 먼저 해야 할 일은 특허청 검색 사이트인 '키프리스(Kipris)' 검색입니다.<br><br>이미 유사한 기술이 등록되어 있다면, 힘들게 개발해도 특허를 받을 수 없거나 타인의 특허를 침해하게 됩니다. 이를 <strong>선행기술조사</strong>라고 합니다.<br><br>또한 주의할 점은 <strong>'공지 예외 주장'</strong>입니다. 본인의 아이디어를 블로그나 전시회에 먼저 공개해버리면 '신규성'을 상실해 특허 등록이 거절될 수 있습니다. 공개 후 1년 이내에 출원하며 공지 예외 주장을 해야만 구제받을 수 있으니, 가급적 출원 전에는 기술 내용을 비밀로 유지하세요.`
+            },
+            {
+                id: 8,
+                category: "특허/IP",
+                title: "법인명 등기만 믿다가 브랜드 뺏기는 이유",
+                author: "조민지 변리사",
+                date: "2024.12.18",
+                content: `법인 등기를 마쳤다고 해서 그 상호가 온전히 내 것이 되는 것은 아닙니다. 상호(등기소)와 상표(특허청)는 별개이기 때문입니다.<br><br>내가 먼저 사업을 시작했더라도, 다른 사람이 동일한 이름으로 <strong>상표권</strong>을 먼저 등록해버리면 간판을 내려야 할 수도 있습니다. 이를 '선출원 주의'라고 합니다.<br><br>특히 서비스 런칭 전, 로고 디자인이 확정되지 않았더라도 텍스트(문자) 상표라도 먼저 출원하여 권리를 선점하는 것이 브랜드 보호의 첫걸음입니다.`
+            },
+            {
+                id: 9,
+                category: "마케팅",
+                title: "광고비 0원으로 유저 1,000명 모으는 PR 전략",
+                author: "장영글 대표",
+                date: "2024.12.10",
+                content: `광고비가 없는 초기 스타트업이 할 수 있는 최고의 마케팅은 PR(Public Relations)입니다.<br><br><strong>1. 콜드 메일(Cold Email)의 기술</strong><br>기자들에게 무작정 보도자료를 뿌리지 마세요. 우리 서비스와 관련된 기사를 쓴 기자님을 찾아, "기자님의 지난 기사를 잘 읽었습니다. 저희 팀이 해결하려는 문제와 맞닿아 있어 소개드립니다"라고 정중하고 개인화된 메일을 보내야 합니다.<br><br><strong>2. 창업자 스토리텔링</strong><br>기능보다 '왜'에 집중하세요. 왜 이 문제를 해결하려고 하는지, 창업자의 진정성 있는 스토리는 그 자체로 훌륭한 기사거리가 됩니다. 브런치나 링크드인에 꾸준히 창업기를 연재하는 것도 좋은 방법입니다.`
+            },
+            {
+                id: 10,
+                category: "브랜딩",
+                title: "3초 만에 고객을 사로잡는 한 줄, 슬로건의 법칙",
+                author: "장영글 대표",
+                date: "2024.11.20",
+                content: `좋은 슬로건은 설명하지 않습니다. 상상하게 만듭니다.<br><br><strong>나쁜 예:</strong> "최고의 기술력으로 만든 인공지능 번역 서비스"<br><strong>좋은 예:</strong> "언어의 장벽을 무너뜨리다"<br><br>브랜드 슬로건을 만들 때는 <strong>Target(누구에게), Benefit(어떤 이득을), Difference(남들과 다르게)</strong> 세 가지 요소를 고려해야 합니다. 우리 서비스가 없다면 고객의 삶이 어떻게 불편할지를 역으로 생각해보세요. 그 불편함을 해결해주는 한 문장이 바로 여러분의 슬로건입니다.`
+            },
+            {
+                id: 12, // Using index for unique key
+                category: "창업/정부지원",
+                title: "정부지원사업 합격하는 사업계획서의 비밀 (PSST)",
+                author: "남기태 대표",
+                date: "2024.12.01",
+                content: `예비창업패키지, 초기창업패키지 등 정부지원사업은 <strong>PSST 방식</strong>으로 작성해야 합니다.<br><br><strong>P (Problem):</strong> 고객이 겪는 문제가 무엇인지 구체적인 데이터로 증명하세요.<br><strong>S (Solution):</strong> 우리만의 차별화된 해결책은 무엇인가요?<br><strong>S (Scale-up):</strong> 어떻게 돈을 벌고 시장을 확장할 것인가요?<br><strong>T (Team):</strong> 이 문제를 해결할 역량 있는 팀원들이 모였나요?<br><br>심사위원은 '이 사업이 성공할까?'보다 '이 팀이 국민 세금을 헛되이 쓰지 않을까?'를 더 봅니다. 실현 가능성을 보여주는 데 집중하세요.`
+            },
+            {
+                id: 13,
+                category: "행정/인증",
+                title: "벤처기업 인증, 우리 회사는 어떤 유형이 유리할까?",
+                author: "김수빈 행정사",
+                date: "2024.11.15",
+                content: `벤처기업 인증을 받으면 법인세 50% 감면 등 혜택이 막강합니다. 2021년 개편 이후 3가지 유형 중 우리 회사에 맞는 것을 골라야 합니다.<br><br><strong>1. 혁신성장유형:</strong> 기술력과 사업성을 평가받습니다. 대부분의 스타트업이 여기에 해당하며, 사업계획서 품질이 중요합니다.<br><strong>2. 벤처투자유형:</strong> 적격 투자기관으로부터 5천만 원 이상 투자를 받았다면 비교적 쉽게 인증받을 수 있습니다.<br><strong>3. 연구개발유형:</strong> 기업부설연구소가 있고 연구개발비 비중이 높다면 유리합니다.<br><br>유형 선택이 합격의 50%를 좌우하므로 전문가와 상의하여 전략을 짜야 합니다.`
+            }
+        ];
+
+        // Search
+        function searchExperts() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const cards = document.querySelectorAll('.expert-card');
+            const resultMsg = document.getElementById('search-result-msg');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const text = card.textContent || card.innerText;
+                if (text.toUpperCase().indexOf(filter) > -1) {
+                    card.style.display = "";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            if (filter.length > 0) {
+                resultMsg.classList.remove('hidden');
+                resultMsg.innerText = `'${input.value}' 검색 결과: ${visibleCount}명의 전문가를 찾았습니다.`;
+            } else {
+                resultMsg.classList.add('hidden');
+            }
+        }
+
+        // Category Filter
+        function filterCategory(category) {
+            const cards = document.querySelectorAll('.expert-card');
+            const buttons = document.querySelectorAll('.category-btn');
+
+            buttons.forEach(btn => {
+                if(btn.dataset.category === category) {
+                    btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
+                    btn.classList.add('bg-primary', 'text-white', 'border-transparent', 'shadow-md');
+                } else {
+                    btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
+                    btn.classList.remove('bg-primary', 'text-white', 'border-transparent', 'shadow-md');
+                }
+            });
+
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (category === 'all') {
+                    card.style.display = "";
+                } else {
+                    if (cardCategory && cardCategory.includes(category)) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
+            
+            document.getElementById('searchInput').value = '';
+            document.getElementById('search-result-msg').classList.add('hidden');
+        }
+
+        // Modal Functions
+        function openColumn(id) {
+            // Find data by ID
+            const data = columnData.find(item => item.id === id);
+            
+            if (data) {
+                document.getElementById('col-modal-title').innerText = data.title;
+                document.getElementById('col-modal-author').innerText = data.author;
+                document.getElementById('col-modal-date').innerText = data.date;
+                document.getElementById('col-modal-content').innerHTML = data.content;
+                
+                document.getElementById('column-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function openColumnBoard() {
+            document.getElementById('board-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+    </script>
 </body>
 </html>
