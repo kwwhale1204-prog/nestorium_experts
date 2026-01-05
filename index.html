@@ -12,8 +12,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1e293b', // Slate 800
-                        secondary: '#3b82f6', // Bright Blue
+                        primary: '#0f172a', // 더 깊은 네이비 (Slate 900) - 신뢰감
+                        secondary: '#2563eb', // 더 진한 블루 (Blue 600) - 전문성
+                        accent: '#0ea5e9', // Sky Blue - 혁신
                         youtube: '#ff0000', // YouTube Red
                     },
                     fontFamily: {
@@ -40,8 +41,22 @@
         /* Hide scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .column-card:hover h3 { color: #3b82f6; }
-        .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+        .column-card:hover h3 { color: #2563eb; }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+        
+        /* Accelerator Vibe Gradients */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #60a5fa, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .edu-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-5px);
+        }
     </style>
 </head>
 <body class="font-sans text-slate-800 bg-slate-50 antialiased relative">
@@ -57,38 +72,247 @@
                 <div class="hidden md:flex space-x-8">
                     <a href="#" onclick="window.location.reload(); return false;" class="text-slate-600 hover:text-secondary font-medium transition">홈으로</a>
                     <a href="#" class="text-secondary font-bold transition border-b-2 border-secondary">전문가 찾기</a>
+                    <a href="#education" class="text-slate-600 hover:text-secondary font-medium transition">교육 프로그램</a> <!-- 메뉴 추가 -->
                     <a href="#columns" class="text-slate-600 hover:text-secondary font-medium transition">전문가 칼럼</a>
                     <a href="#seminar" class="text-slate-600 hover:text-secondary font-medium transition">세미나 일정</a>
-                    <a href="#shorts" class="text-slate-600 hover:text-secondary font-medium transition">전문가 숏폼</a>
                 </div>
-                <div class="hidden md:flex">
+                <div class="hidden md:flex gap-3">
+                    <a href="https://forms.google.com" target="_blank" class="flex items-center gap-2 border border-secondary text-secondary px-5 py-2 rounded-full font-bold hover:bg-blue-50 transition shadow-sm">
+                        <i class="fa-regular fa-paper-plane"></i> IR 피칭 신청
+                    </a>
                     <a href="https://www.youtube.com/@nestorium" target="_blank" class="flex items-center gap-2 bg-red-600 text-white px-5 py-2 rounded-full font-bold hover:bg-red-700 transition shadow-lg">
-                        <i class="fa-brands fa-youtube"></i> 유튜브 구독
+                        <i class="fa-brands fa-youtube"></i> 유튜브
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Header -->
-    <header class="bg-primary pt-32 pb-20 text-white text-center px-4">
-        <h1 class="text-3xl md:text-5xl font-black mb-4">
-            검증된 <span class="text-secondary">전문가 파트너</span>를 만나보세요
-        </h1>
-        <p class="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
-            네스토리움이 보증하는 각 분야 최고의 전문가들입니다.<br>
-            영상으로 먼저 만나보고, 신뢰가 간다면 상담을 신청하세요.
-        </p>
-        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20 relative">
-            <i class="fa-solid fa-magnifying-glass text-slate-400 ml-4"></i>
-            <input type="text" id="searchInput" onkeyup="if(event.key === 'Enter') searchExperts()" placeholder="어떤 전문가를 찾으시나요? (예: 정종구 변호사, 이종호 세무사)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-2 focus:outline-none focus:ring-0">
-            <button onclick="searchExperts()" class="bg-secondary text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 transition">검색</button>
+    <!-- Header (Accelerator Vibe Upgrade) -->
+    <header class="bg-gradient-primary pt-36 pb-24 text-white text-center px-4 relative overflow-hidden">
+        <!-- Abstract Background Element -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
         </div>
-        <p id="search-result-msg" class="text-sm text-slate-400 mt-2 hidden"></p>
+
+        <div class="relative z-10">
+            <span class="inline-block border border-blue-400/30 bg-blue-500/10 text-blue-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase backdrop-blur-sm">
+                Next Unicorn Batch 2026
+            </span>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                검증된 파트너와 함께<br>
+                <span class="text-gradient">유니콘으로 스케일업</span> 하세요
+            </h1>
+            <p class="text-slate-300 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                네스토리움은 단순한 매칭을 넘어, 실질적인 성장을 만드는 엑셀러레이터입니다.<br>
+                각 분야 최고 전문가들과 함께 문제를 해결하고 투자의 기회를 잡으세요.
+            </p>
+            
+            <!-- Search/Filter -->
+            <div class="max-w-3xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20 relative shadow-2xl">
+                <i class="fa-solid fa-magnifying-glass text-slate-300 ml-4 text-lg"></i>
+                <input type="text" id="searchInput" onkeyup="if(event.key === 'Enter') searchExperts()" placeholder="해결하고 싶은 문제를 검색하세요 (예: 투자계약, 법인설립, 특허출원)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-3 focus:outline-none focus:ring-0 text-lg">
+                <button onclick="searchExperts()" class="bg-secondary text-white px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition shadow-lg whitespace-nowrap">전문가 찾기</button>
+            </div>
+            <p id="search-result-msg" class="text-sm text-slate-400 mt-4 hidden"></p>
+        </div>
     </header>
 
-    <!-- Category Filters -->
-    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm overflow-x-auto no-scrollbar">
+    <!-- Impact Numbers (Accelerator Credibility) -->
+    <div id="impact-section" class="bg-white border-b border-slate-200 py-8 relative z-20 -mt-8 mx-4 md:mx-auto max-w-6xl rounded-2xl shadow-xl">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100 text-center">
+            <div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Portfolio Value</p>
+                <p class="text-3xl md:text-4xl font-black text-primary flex justify-center items-baseline gap-1">
+                    <span class="counter" data-target="1200">0</span><span>억+</span>
+                </p>
+            </div>
+            <div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Startups</p>
+                <p class="text-3xl md:text-4xl font-black text-primary flex justify-center items-baseline gap-1">
+                    <span class="counter" data-target="350">0</span><span>+</span>
+                </p>
+            </div>
+            <div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Expert Pool</p>
+                <p class="text-3xl md:text-4xl font-black text-primary flex justify-center items-baseline gap-1">
+                    <span class="counter" data-target="50">0</span><span>+</span>
+                </p>
+            </div>
+            <div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Success Rate</p>
+                <p class="text-3xl md:text-4xl font-black text-primary flex justify-center items-baseline gap-1">
+                    <span class="counter" data-target="92">0</span><span>%</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accelerator Program Process -->
+    <section class="bg-slate-900 py-24 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-accent font-bold tracking-widest uppercase text-sm">Systematic Growth System</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2">체계적인 액셀러레이팅 로드맵</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                <!-- Connecting Line (Desktop) -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-700 -z-10"></div>
+
+                <!-- Step 1 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-accent font-bold z-10">01</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">전문가 진단</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            법률, 세무, IP 등 기업 현황 정밀 진단 및 리스크 사전 제거
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">02</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">전담 멘토링</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            BM 고도화 및 사업 계획 수립을 위한 1:1 밀착 멘토링
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">03</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">IR 데모데이</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            투자자 대상 피칭 기회 제공 및 네트워킹 데이 개최
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">04</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">직/간접 투자</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            우수 기업 대상 직접 시드 투자 및 팁스(TIPS) 연계 지원
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Programs Section (NEW) -->
+    <section id="education" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-secondary font-bold tracking-widest uppercase">Nestorium Academy</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-primary mt-2">네스토리움 창업 교육</h2>
+                <p class="text-slate-600 mt-2">이론이 아닌 생존과 성장을 위한 실전 커리큘럼을 제공합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Program 1: Startup Building -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300">
+                    <div class="bg-indigo-600 h-2 w-full"></div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">예비/초기</span>
+                            <span class="text-slate-400 text-sm"><i class="fa-regular fa-clock"></i> 8주 과정</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-primary mb-3">0 to 1 스타트업 빌딩</h3>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                            아이디어 구체화부터 BM 수립, 정부지원사업 합격까지. 실패하지 않는 창업의 첫걸음을 설계합니다.
+                        </p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-indigo-500 mr-2"></i> 2026 정부지원사업 합격 전략</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-indigo-500 mr-2"></i> PSST 사업계획서 1:1 코칭</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-indigo-500 mr-2"></i> MVP 기획 및 검증</li>
+                        </ul>
+                        <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                            <img src="https://ui-avatars.com/api/?name=Nam+Gi+Tae&background=random" class="w-10 h-10 rounded-full border border-slate-200">
+                            <div>
+                                <p class="text-sm font-bold text-primary">남기태 대표</p>
+                                <p class="text-xs text-slate-500">네스토리움 메인 멘토</p>
+                            </div>
+                        </div>
+                        <a href="https://forms.google.com" target="_blank" class="mt-6 block w-full bg-indigo-50 text-indigo-600 font-bold py-3 rounded-xl text-center hover:bg-indigo-600 hover:text-white transition">커리큘럼 상세보기</a>
+                    </div>
+                </div>
+
+                <!-- Program 2: Finance & IR -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300">
+                    <div class="bg-emerald-600 h-2 w-full"></div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">시드/프리A</span>
+                            <span class="text-slate-400 text-sm"><i class="fa-regular fa-clock"></i> 6주 과정</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-primary mb-3">투자를 부르는 재무/IR</h3>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                            투자자가 신뢰하는 재무제표 세팅부터 설득력 있는 IR 덱(Deck) 구성, 기업가치 평가까지 마스터합니다.
+                        </p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 스타트업 필수 재무/회계 실무</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> IR 피치덱 스토리텔링</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 투자 계약서 독소조항 분석</li>
+                        </ul>
+                        <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                            <div class="flex -space-x-2">
+                                <img src="https://ui-avatars.com/api/?name=Park+Ye+Jin&background=random" class="w-10 h-10 rounded-full border border-slate-200">
+                                <img src="https://ui-avatars.com/api/?name=Ko+Hye+Jin&background=random" class="w-10 h-10 rounded-full border border-slate-200">
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-primary">박예진, 고혜진</p>
+                                <p class="text-xs text-slate-500">재무/회계 전문가 그룹</p>
+                            </div>
+                        </div>
+                        <a href="https://forms.google.com" target="_blank" class="mt-6 block w-full bg-emerald-50 text-emerald-600 font-bold py-3 rounded-xl text-center hover:bg-emerald-600 hover:text-white transition">커리큘럼 상세보기</a>
+                    </div>
+                </div>
+
+                <!-- Program 3: Growth & Operations -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300">
+                    <div class="bg-rose-600 h-2 w-full"></div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1 rounded-full">도약/성장</span>
+                            <span class="text-slate-400 text-sm"><i class="fa-regular fa-clock"></i> 4주 과정</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-primary mb-3">그로스 & 조직 운영</h3>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                            빠른 성장을 위한 마케팅 전략과 인재가 모이는 조직 문화, 효율적인 운영 시스템을 구축합니다.
+                        </p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-rose-500 mr-2"></i> OKR 설정 및 성과 관리</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-rose-500 mr-2"></i> 채용 브랜딩 및 온보딩 프로세스</li>
+                            <li class="flex items-center text-sm text-slate-700"><i class="fa-solid fa-check text-rose-500 mr-2"></i> 저비용 고효율 마케팅 전략</li>
+                        </ul>
+                        <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                            <div class="flex -space-x-2">
+                                <img src="https://ui-avatars.com/api/?name=Kang+Min+Seo&background=random" class="w-10 h-10 rounded-full border border-slate-200">
+                                <img src="https://ui-avatars.com/api/?name=Jang+Young+Geul&background=random" class="w-10 h-10 rounded-full border border-slate-200">
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-primary">강민서, 장영글</p>
+                                <p class="text-xs text-slate-500">운영/마케팅 전문가 그룹</p>
+                            </div>
+                        </div>
+                        <a href="https://forms.google.com" target="_blank" class="mt-6 block w-full bg-rose-50 text-rose-600 font-bold py-3 rounded-xl text-center hover:bg-rose-600 hover:text-white transition">커리큘럼 상세보기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Filters (Maintained) -->
+    <div class="bg-white border-b border-slate-200 sticky top-20 z-40 shadow-sm overflow-x-auto no-scrollbar pt-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex space-x-2 py-4 whitespace-nowrap" id="category-buttons">
                 <button onclick="filterCategory('all')" class="category-btn px-5 py-2 rounded-full bg-primary text-white font-bold shadow-md hover:bg-slate-700 transition" data-category="all">전체보기</button>
@@ -105,8 +329,14 @@
         </div>
     </div>
 
-    <!-- Main Content Grid -->
+    <!-- Main Content Grid (Expert Finder) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="flex items-center gap-2 mb-8">
+            <h2 class="text-2xl font-bold text-primary">Expert Partners</h2>
+            <div class="h-px bg-slate-200 flex-1"></div>
+            <span class="text-sm text-slate-500 font-medium">분야별 전담 파트너 매칭</span>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="expert-grid">
             
             <!-- Expert Cards -->
@@ -476,6 +706,65 @@
         </div>
     </section>
 
+    <!-- Accelerator Program Process (New Section) -->
+    <section class="bg-slate-900 py-24 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-accent font-bold tracking-widest uppercase text-sm">Systematic Growth System</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2">체계적인 액셀러레이팅 로드맵</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                <!-- Connecting Line (Desktop) -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-700 -z-10"></div>
+
+                <!-- Step 1 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-accent font-bold z-10">01</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">전문가 진단</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            법률, 세무, IP 등 기업 현황 정밀 진단 및 리스크 사전 제거
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">02</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">전담 멘토링</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            BM 고도화 및 사업 계획 수립을 위한 1:1 밀착 멘토링
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">03</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">IR 데모데이</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            투자자 대상 피칭 기회 제공 및 네트워킹 데이 개최
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative bg-slate-800 p-8 rounded-xl border border-slate-700 hover:border-accent transition group">
+                    <div class="w-12 h-12 bg-slate-900 border-2 border-slate-600 group-hover:border-accent rounded-full flex items-center justify-center absolute -top-6 left-1/2 -translate-x-1/2 text-white font-bold z-10 transition">04</div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-xl font-bold mb-3 text-white">직/간접 투자</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            우수 기업 대상 직접 시드 투자 및 팁스(TIPS) 연계 지원
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Expert Columns Section -->
     <section id="columns" class="py-24 bg-slate-50 border-t border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -554,7 +843,6 @@
         </div>
     </section>
 
-    <!-- ... (Seminar & Shorts Sections unchanged) ... -->
     <!-- Seminar Schedule Section (Added) -->
     <section id="seminar" class="py-24 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -706,6 +994,21 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Logo Strip (New) -->
+    <section class="py-12 bg-white border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-slate-400 text-sm font-bold uppercase tracking-widest mb-8">Our Partners & Family</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                <!-- Placeholder Logos using FontAwesome as Mock -->
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-600"><i class="fa-brands fa-google text-blue-500"></i> Google</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-600"><i class="fa-brands fa-aws text-orange-500"></i> AWS</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-600"><i class="fa-brands fa-microsoft text-blue-600"></i> Microsoft</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-600"><i class="fa-brands fa-hubspot text-orange-600"></i> HubSpot</div>
+                <div class="flex items-center gap-2 text-2xl font-bold text-slate-600"><i class="fa-brands fa-notion"></i> Notion</div>
             </div>
         </div>
     </section>
@@ -1050,6 +1353,44 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
             document.body.style.overflow = 'auto'; 
+        }
+
+        // Counter Animation Logic
+        const impactSection = document.getElementById('impact-section');
+        const counters = document.querySelectorAll('.counter');
+        let animated = false;
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000; // Animation duration in ms
+                const increment = target / (duration / 20); // Update every 20ms
+                
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.innerText = target.toLocaleString(); // Add commas
+                        clearInterval(timer);
+                    } else {
+                        counter.innerText = Math.ceil(current).toLocaleString();
+                    }
+                }, 20);
+            });
+        };
+
+        // Trigger animation when section is in view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !animated) {
+                    animateCounters();
+                    animated = true; // Run only once
+                }
+            });
+        }, { threshold: 0.5 });
+
+        if (impactSection) {
+            observer.observe(impactSection);
         }
     </script>
 </body>
