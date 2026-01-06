@@ -1336,19 +1336,42 @@
                     })
                 });
 
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
                 const data = await response.json();
-                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 답변을 생성할 수 없습니다.";
+                const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
                 
+                if (!aiText) throw new Error("No response text");
+
                 // Remove loading, Add AI Message
                 const loadingMsg = document.getElementById(loadingId);
                 if(loadingMsg) loadingMsg.remove();
                 addMessage(aiText, 'ai');
 
             } catch (error) {
-                console.error(error);
+                console.error("AI Response Failed:", error);
                 const loadingMsg = document.getElementById(loadingId);
                 if(loadingMsg) loadingMsg.remove();
-                addMessage("오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", 'ai');
+                
+                // Smart Fallback Responses (Demo Mode)
+                let fallbackMsg = "죄송합니다. 현재 AI 연결 상태가 원활하지 않습니다. 잠시 후 다시 시도해 주세요.";
+                
+                const keywords = [
+                    { key: "안녕", msg: "안녕하세요! 예비 유니콘 대표님, 무엇을 도와드릴까요? 🚀" },
+                    { key: "투자", msg: "투자는 스타트업 성장의 핵심이죠. 시드 투자부터 시리즈 A까지, 단계별 전략이나 IR 자료 준비에 대해 궁금하신가요?" },
+                    { key: "법인", msg: "법인 설립은 등기부터 사업자 등록까지 꼼꼼함이 필요합니다. 네스토리움 법무 전문가들이 도와드릴 수 있습니다." },
+                    { key: "세무", msg: "초기 스타트업은 부가세 신고와 인건비 처리가 가장 중요합니다. 세금 이슈는 미리 대비하는 게 좋습니다." },
+                    { key: "창업", msg: "창업의 여정을 시작하신 것을 축하드립니다! 아이디어 검증부터 팀 빌딩까지, 어떤 조언이 필요하신가요?" },
+                    { key: "지원", msg: "정부지원사업은 초기 자금 확보에 큰 도움이 됩니다. 예비창업패키지나 초기창업패키지 공고를 확인해 보셨나요?" },
+                    { key: "노무", msg: "근로계약서 작성은 필수입니다. 나중에 분쟁이 생기지 않도록 미리 전문가의 검토를 받는 것이 좋습니다." }
+                ];
+
+                const match = keywords.find(k => message.includes(k.key));
+                if (match) {
+                    fallbackMsg = match.msg + " <br><span class='text-xs text-slate-400'>(현재 데모 모드로 답변 드립니다)</span>";
+                }
+
+                addMessage(fallbackMsg, 'ai');
             }
         }
 
