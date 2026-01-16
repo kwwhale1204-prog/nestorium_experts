@@ -83,28 +83,38 @@
     </nav>
 
     <!-- Header -->
-    <header class="bg-slate-900 pt-36 pb-24 text-white text-center px-4 relative overflow-hidden">
+    <!-- [변경] pb-24 -> pb-64 md:pb-96: 헤더 높이를 대폭 늘려 3D 배경 영역 확장 -->
+    <header class="bg-slate-900 pt-36 pb-64 md:pb-96 text-white text-center px-4 relative overflow-hidden">
         <!-- Spline 3D Background -->
         <div class="absolute inset-0 z-0">
             <iframe src='https://my.spline.design/nexbotrobotcharacterconcept-8rhnSwTbiM9KozViYFA7f3HS/' frameborder='0' width='100%' height='100%' class="w-full h-full"></iframe>
             <!-- Text Readability Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900/80 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/40 to-slate-900/90 pointer-events-none"></div>
         </div>
 
-        <div class="relative z-10">
-            <span class="inline-block border border-blue-400/30 bg-blue-500/10 text-blue-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase backdrop-blur-sm">
+        <!-- 
+            [중요 변경 사항] pointer-events-none 클래스 추가 
+            이 컨테이너 안의 요소들은 마우스 이벤트를 무시하고 뒤쪽의 3D 배경으로 신호를 통과시킵니다.
+        -->
+        <div class="relative z-10 pointer-events-none">
+            <!-- 성능 최적화: backdrop-blur 제거 및 배경색 조정 -->
+            <span class="inline-block border border-blue-400/30 bg-slate-800/80 text-blue-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
                 Next Unicorn Batch 2026
             </span>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight drop-shadow-lg">
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight drop-shadow-2xl">
                 검증된 파트너와 함께<br>
                 <span class="text-gradient drop-shadow-none">유니콘으로 스케일업</span> 하세요
             </h1>
-            <p class="text-slate-200 text-lg max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md font-medium">
+            <p class="text-slate-200 text-lg max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg font-medium">
                 네스토리움은 단순한 매칭을 넘어, 실질적인 성장을 만드는 엑셀러레이터입니다.<br>
                 각 분야 최고 전문가들과 함께 문제를 해결하고 투자의 기회를 잡으세요.
             </p>
             
-            <div class="max-w-3xl mx-auto bg-white/10 backdrop-blur-md p-2 rounded-full flex items-center border border-white/20 relative shadow-2xl">
+            <!-- 
+                [중요 변경 사항] pointer-events-auto 클래스 추가
+                검색창은 클릭과 입력이 가능해야 하므로 마우스 이벤트를 다시 활성화합니다.
+            -->
+            <div class="max-w-3xl mx-auto bg-slate-900/80 p-2 rounded-full flex items-center border border-white/20 relative shadow-2xl pointer-events-auto">
                 <i class="fa-solid fa-magnifying-glass text-slate-300 ml-4 text-lg"></i>
                 <input type="text" id="searchInput" onkeyup="if(event.key === 'Enter') searchExperts()" placeholder="해결하고 싶은 문제를 검색하세요 (예: 투자계약, 법인설립, 특허출원)" class="w-full bg-transparent border-none text-white placeholder-slate-400 px-4 py-3 focus:outline-none focus:ring-0 text-lg">
                 <button onclick="searchExperts()" class="bg-secondary text-white px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition shadow-lg whitespace-nowrap">전문가 찾기</button>
@@ -114,7 +124,8 @@
     </header>
 
     <!-- Impact Numbers -->
-    <div id="impact-section" class="bg-white border-b border-slate-200 py-8 relative z-20 -mt-8 mx-4 md:mx-auto max-w-6xl rounded-2xl shadow-xl">
+    <!-- [변경] -mt-8 -> -mt-20: 섹션이 3D 배경 위로 더 많이 올라오도록 겹침 정도 조정 -->
+    <div id="impact-section" class="bg-white/95 backdrop-blur-md border-b border-slate-200 py-8 relative z-20 -mt-20 mx-4 md:mx-auto max-w-6xl rounded-2xl shadow-2xl">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100 text-center">
             <div>
                 <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Portfolio Value</p>
