@@ -42,12 +42,16 @@
         /* Chat Widget Animations */
         @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .chat-enter { animation: slideInUp 0.3s ease-out forwards; }
+        
+        /* 3D iframe optimization */
+        .spline-optimize { will-change: transform; transform: translateZ(0); }
     </style>
 </head>
 <body class="font-sans text-slate-800 bg-slate-50 antialiased relative">
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+    <!-- [최적화] 모바일 스크롤 성능을 위해 네비게이션의 backdrop-blur 제거 및 불투명도 조정 -->
+    <nav class="fixed w-full z-50 bg-white/95 border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
@@ -90,9 +94,9 @@
     <div class="relative w-full overflow-hidden bg-slate-900">
         
         <!-- 3D Background Area -->
-        <!-- [수정] pointer-events-none 제거: 마우스 이벤트가 iframe에 도달하도록 허용 -->
         <div class="absolute inset-0 z-0">
-            <iframe src='https://my.spline.design/nexbotrobotcharacterconcept-8rhnSwTbiM9KozViYFA7f3HS/' frameborder='0' width='100%' height='100%' class="w-full h-full object-cover"></iframe>
+            <!-- [최적화] spline-optimize 클래스 추가 -->
+            <iframe src='https://my.spline.design/nexbotrobotcharacterconcept-8rhnSwTbiM9KozViYFA7f3HS/' frameborder='0' width='100%' height='100%' class="w-full h-full object-cover spline-optimize"></iframe>
             <!-- 하단으로 갈수록 흰색 배경과 자연스럽게 섞이도록 그라디언트 조정 -->
             <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/20 to-slate-50 pointer-events-none"></div>
         </div>
@@ -100,14 +104,16 @@
         <!-- Header -->
         <header class="relative z-10 pt-36 pb-32 text-white text-center px-4 pointer-events-none">
             <div class="relative z-10">
-                <span class="inline-block border border-blue-400/30 bg-slate-800/80 text-blue-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase backdrop-blur-sm">
+                <!-- [최적화] backdrop-blur 제거 및 배경색 불투명도 조정 -->
+                <span class="inline-block border border-blue-400/30 bg-slate-800/90 text-blue-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
                     Next Unicorn Batch 2026
                 </span>
-                <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight drop-shadow-2xl">
+                <!-- [최적화] 텍스트 그림자(drop-shadow) 강도 조절 -->
+                <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight drop-shadow-xl">
                     검증된 파트너와 함께<br>
                     <span class="text-gradient drop-shadow-none">유니콘으로 스케일업</span> 하세요
                 </h1>
-                <p class="text-slate-200 text-lg max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg font-medium">
+                <p class="text-slate-200 text-lg max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-md font-medium">
                     네스토리움은 단순한 매칭을 넘어, 실질적인 성장을 만드는 엑셀러레이터입니다.<br>
                     각 분야 최고 전문가들과 함께 문제를 해결하고 투자의 기회를 잡으세요.
                 </p>
@@ -122,9 +128,8 @@
         </header>
 
         <!-- Impact Numbers -->
-        <!-- [수정] pointer-events-none 추가: 박스 영역에서도 마우스가 3D 배경에 닿도록 함 -->
-        <div id="impact-section" class="relative z-10 -mt-8 mx-4 md:mx-auto max-w-6xl rounded-2xl shadow-xl bg-white/90 backdrop-blur-sm border border-white/20 pointer-events-none">
-            <!-- [수정] pointer-events-auto 추가: 내부 텍스트 선택 등은 가능하게 복구 -->
+        <!-- [최적화] 성능의 주범인 backdrop-blur 제거. 대신 배경 불투명도를 높여 가독성 확보 (bg-white/95) -->
+        <div id="impact-section" class="relative z-10 -mt-8 mx-4 md:mx-auto max-w-6xl rounded-2xl shadow-xl bg-white/95 border border-white/20 pointer-events-none">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100/50 text-center py-8 pointer-events-auto">
                 <div>
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Portfolio Value</p>
@@ -156,8 +161,8 @@
         <!-- Education Programs -->
         <section id="education" class="py-24 relative z-10 bg-transparent pointer-events-none">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- 교육 섹션 텍스트 -->
-                <div class="text-center mb-16 pointer-events-auto bg-white/40 backdrop-blur-md py-8 rounded-2xl inline-block w-full shadow-sm border border-white/30">
+                <!-- [최적화] backdrop-blur 제거, 배경 불투명도 상향 -->
+                <div class="text-center mb-16 pointer-events-auto bg-white/90 py-8 rounded-2xl inline-block w-full shadow-sm border border-white/30">
                     <span class="text-secondary font-bold tracking-widest uppercase">Nestorium Academy</span>
                     <h2 class="text-3xl md:text-4xl font-bold text-primary mt-2">네스토리움 창업 교육</h2>
                     <p class="text-slate-700 mt-2 font-medium">이론이 아닌 생존과 성장을 위한 실전 커리큘럼을 제공합니다.</p>
@@ -165,7 +170,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Program 1 -->
-                    <div class="bg-white/90 rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
+                    <!-- [최적화] 개별 카드의 투명도도 약간 조정하여 렌더링 비용 감소 -->
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
                         <div class="bg-indigo-600 h-2 w-full"></div>
                         <div class="p-8">
                             <div class="flex justify-between items-start mb-4">
@@ -193,7 +199,7 @@
                     </div>
 
                     <!-- Program 2 -->
-                    <div class="bg-white/90 rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
                         <div class="bg-emerald-600 h-2 w-full"></div>
                         <div class="p-8">
                             <div class="flex justify-between items-start mb-4">
@@ -224,7 +230,7 @@
                     </div>
 
                     <!-- Program 3 -->
-                    <div class="bg-white/90 rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden edu-card transition-all duration-300 pointer-events-auto shadow-lg hover:bg-white">
                         <div class="bg-rose-600 h-2 w-full"></div>
                         <div class="p-8">
                             <div class="flex justify-between items-start mb-4">
